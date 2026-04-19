@@ -1,0 +1,159 @@
+{
+  "nodes": [
+    {
+      "node_id": "K0",
+      "node_type": "category",
+      "label": "normal",
+      "description": "Baseline behavior with adequate awareness, fair intent, and reasonable self-control."
+    },
+    {
+      "node_id": "K1",
+      "node_type": "category",
+      "label": "idiot",
+      "description": "Primary failure in awareness or understanding; harm is mostly caused by confusion, ignorance, or poor reasoning."
+    },
+    {
+      "node_id": "K2",
+      "node_type": "category",
+      "label": "asshole",
+      "description": "Primary failure in intent or regard for others; behavior is knowingly selfish, callous, or exploitative."
+    },
+    {
+      "node_id": "K3",
+      "node_type": "category",
+      "label": "jackass",
+      "description": "Primary failure in self-control, recklessness, or ego-driven behavior; disruptive even when not purely malicious."
+    },
+    {
+      "node_id": "K4",
+      "node_type": "category",
+      "label": "shitbird",
+      "description": "Composite of K1 + K3: low awareness plus recklessness; chaotic and disruptive without stable understanding."
+    },
+    {
+      "node_id": "K5",
+      "node_type": "category",
+      "label": "dipshit",
+      "description": "Composite of K1 + K2: poor understanding plus selfish intent; harms others while also reasoning badly."
+    },
+    {
+      "node_id": "K6",
+      "node_type": "category",
+      "label": "fuckhead",
+      "description": "Composite of K2 + K3: selfish intent plus recklessness; knowingly harmful and impulsively damaging."
+    },
+    {
+      "node_id": "D1",
+      "node_type": "dimension",
+      "label": "awareness_failure",
+      "description": "Deficit in understanding, foresight, or competence."
+    },
+    {
+      "node_id": "D2",
+      "node_type": "dimension",
+      "label": "intent_failure",
+      "description": "Deficit in fairness, regard for others, or pro-social intent."
+    },
+    {
+      "node_id": "D3",
+      "node_type": "dimension",
+      "label": "control_failure",
+      "description": "Deficit in self-control, prudence, or ego regulation."
+    }
+  ],
+  "edges": [
+    {
+      "source": "K1",
+      "target": "D1",
+      "relation": "PRIMARY_FAILURE"
+    },
+    {
+      "source": "K2",
+      "target": "D2",
+      "relation": "PRIMARY_FAILURE"
+    },
+    {
+      "source": "K3",
+      "target": "D3",
+      "relation": "PRIMARY_FAILURE"
+    },
+    {
+      "source": "K4",
+      "target": "K1",
+      "relation": "COMPOSED_OF"
+    },
+    {
+      "source": "K4",
+      "target": "K3",
+      "relation": "COMPOSED_OF"
+    },
+    {
+      "source": "K5",
+      "target": "K1",
+      "relation": "COMPOSED_OF"
+    },
+    {
+      "source": "K5",
+      "target": "K2",
+      "relation": "COMPOSED_OF"
+    },
+    {
+      "source": "K6",
+      "target": "K2",
+      "relation": "COMPOSED_OF"
+    },
+    {
+      "source": "K6",
+      "target": "K3",
+      "relation": "COMPOSED_OF"
+    },
+    {
+      "source": "K0",
+      "target": "D1",
+      "relation": "LOW_FAILURE"
+    },
+    {
+      "source": "K0",
+      "target": "D2",
+      "relation": "LOW_FAILURE"
+    },
+    {
+      "source": "K0",
+      "target": "D3",
+      "relation": "LOW_FAILURE"
+    }
+  ],
+  "schema": {
+    "dataset_name": "k_taxonomy_training_examples",
+    "version": "1.0",
+    "task_type": "behavior_classification",
+    "label_space": {
+      "K0": "normal",
+      "K1": "idiot",
+      "K2": "asshole",
+      "K3": "jackass",
+      "K4": "shitbird = K1 + K3",
+      "K5": "dipshit = K1 + K2",
+      "K6": "fuckhead = K2 + K3"
+    },
+    "dimensions": {
+      "awareness_failure_score": "0-5, higher means poorer understanding or foresight",
+      "intent_failure_score": "0-5, higher means more selfish/callous/exploitative behavior",
+      "control_failure_score": "0-5, higher means more reckless/ego-driven/disinhibited behavior"
+    },
+    "fields": [
+      "example_id",
+      "subject_name",
+      "subject_type",
+      "source_universe",
+      "classification_code",
+      "classification_label",
+      "awareness_failure_score",
+      "intent_failure_score",
+      "control_failure_score",
+      "short_rationale",
+      "evidence_points",
+      "notes"
+    ]
+  }
+}

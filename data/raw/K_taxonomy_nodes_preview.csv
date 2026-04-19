@@ -1,0 +1,11 @@
+node_id,node_type,label,description
+K0,category,normal,"Baseline behavior with adequate awareness, fair intent, and reasonable self-control."
+K1,category,idiot,"Primary failure in awareness or understanding; harm is mostly caused by confusion, ignorance, or poor reasoning."
+K2,category,asshole,"Primary failure in intent or regard for others; behavior is knowingly selfish, callous, or exploitative."
+K3,category,jackass,"Primary failure in self-control, recklessness, or ego-driven behavior; disruptive even when not purely malicious."
+K4,category,shitbird,Composite of K1 + K3: low awareness plus recklessness; chaotic and disruptive without stable understanding.
+K5,category,dipshit,Composite of K1 + K2: poor understanding plus selfish intent; harms others while also reasoning badly.
+K6,category,fuckhead,Composite of K2 + K3: selfish intent plus recklessness; knowingly harmful and impulsively damaging.
+D1,dimension,awareness_failure,"Deficit in understanding, foresight, or competence."
+D2,dimension,intent_failure,"Deficit in fairness, regard for others, or pro-social intent."
+D3,dimension,control_failure,"Deficit in self-control, prudence, or ego regulation."

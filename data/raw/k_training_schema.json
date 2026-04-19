@@ -1,0 +1,33 @@
+{
+  "dataset_name": "k_taxonomy_training_examples",
+  "version": "1.0",
+  "task_type": "behavior_classification",
+  "label_space": {
+    "K0": "normal",
+    "K1": "idiot",
+    "K2": "asshole",
+    "K3": "jackass",
+    "K4": "shitbird = K1 + K3",
+    "K5": "dipshit = K1 + K2",
+    "K6": "fuckhead = K2 + K3"
+  },
+  "dimensions": {
+    "awareness_failure_score": "0-5, higher means poorer understanding or foresight",
+    "intent_failure_score": "0-5, higher means more selfish/callous/exploitative behavior",
+    "control_failure_score": "0-5, higher means more reckless/ego-driven/disinhibited behavior"
+  },
+  "fields": [
+    "example_id",
+    "subject_name",
+    "subject_type",
+    "source_universe",
+    "classification_code",
+    "classification_label",
+    "awareness_failure_score",
+    "intent_failure_score",
+    "control_failure_score",
+    "short_rationale",
+    "evidence_points",
+    "notes"
+  ]
+}
