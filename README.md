@@ -7,7 +7,7 @@ project that classifies subjects along two independent taxonomies:
 |---|---|---|---|
 | [`whoiswhat/`](./whoiswhat) | K-taxonomy classifier (criteria + labeled examples) | **5001** (docker) / 5000 (local) | `whoiswhat.db` |
 | [`whoishoss/`](./whoishoss) | HOSS F-scale archetype classifier | **5002** | `whoishoss.db` |
-| `meeting_advisor/` _(planned)_ | Calls both services, recommends how to meet a subject in a given context | 5003 | — |
+| [`meeting_advisor/`](./meeting_advisor) | Aggregator — calls both classifiers over HTTP + LLM meeting guidance | **5003** | `meeting_advisor.db` |
 
 Each service owns its own blueprint, SQLAlchemy `db` instance, SQLite file,
 data folder, and prompts — they can be deployed independently.
@@ -41,6 +41,9 @@ python run.py                       # http://127.0.0.1:5000
 
 # terminal 2 — whoishoss (HOSS)
 python run_whoishoss.py             # http://127.0.0.1:5002
+
+# terminal 3 — meeting_advisor (calls both over HTTP)
+python run_meeting_advisor.py       # http://127.0.0.1:5003
 ```
 
 On first startup each service creates its tables and, if empty, imports its
@@ -54,10 +57,11 @@ docker compose up --build
 
 - whoiswhat → http://127.0.0.1:5001
 - whoishoss → http://127.0.0.1:5002
+- meeting_advisor → http://127.0.0.1:5003 (reaches its siblings via Docker DNS: `http://whoiswhat:5000`, `http://whoishoss:5002`)
 
-Each service gets its own named volume (`whoiswhat_db`, `whoishoss_db`) so
-the databases are independent and persist across restarts. `OPENAI_API_KEY`
-is read from your host `.env`.
+Each service gets its own named volume (`whoiswhat_db`, `whoishoss_db`,
+`advisor_db`) so the databases are independent and persist across restarts.
+`OPENAI_API_KEY` is read from your host `.env`.
 
 ## WhoIsWhat (K taxonomy service)
 
@@ -132,28 +136,64 @@ flask --app wsgi_whoishoss import-hoss-data --force
 personas, or opt-in self-reports — the classifier prompt enforces this.
 Output is a stylized archetypal label, not a diagnosis.
 
-## Planned: `meeting_advisor/`
+## Meeting Advisor (aggregator)
 
-A third microservice that calls both classifiers, merges the two structured
-profiles with a user-supplied **meeting context** (setting, role, stakes,
-goals), and asks an LLM for a meeting-preparation brief:
+`meeting_advisor/` is a true sibling microservice: it calls WhoIsWhat and
+WhoIsHoss **over HTTP**, caches the two profiles in its own SQLite DB with
+a configurable TTL, opportunistically reuses already-persisted HOSS
+profiles (avoiding a re-classification), and asks the LLM for a
+tactical meeting brief.
+
+Request:
 
 ```
 POST /api/v1/advise
 {
   "subject_name": "...",
-  "notes": "...",
+  "source_hint": "Breaking Bad | invented | work colleague ...",  // optional
+  "notes": "optional behavior notes, forwarded to both classifiers",
   "context": {
-    "setting": "work|social|family|negotiation|first-date|conflict",
-    "your_role": "...",
+    "setting": "work|social|family|negotiation|first-date|conflict|interview|other",
     "stakes": "low|medium|high",
+    "your_role": "...",
     "goals": "..."
   }
 }
 ```
 
-Returns `{risk_level, key_observations, do, dont, opening_move,
-watchpoints, escalation_plan}`. Ships in a follow-up PR.
+Response (standard schema):
+
+```json
+{
+  "id": 7,
+  "k_profile":    { ... full WhoIsWhat /classify response ... },
+  "hoss_profile": { ... full WhoIsHoss /hoss/classify response ... },
+  "advice": {
+    "risk_level": "low|medium|high",
+    "key_observations": "...",
+    "do":   ["...", "..."],
+    "dont": ["...", "..."],
+    "opening_move": "...",
+    "watchpoints": ["...", "..."],
+    "escalation_plan": "..."
+  }
+}
+```
+
+Endpoints:
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /` | Index |
+| `GET /advise` | UI — subject + notes + meeting context; two panels for profiles, one for guidance |
+| `POST /api/v1/advise` | Fan-out + LLM brief (see above) |
+| `GET /api/v1/advice` | List stored advice runs |
+| `GET /api/v1/advice/<id>` | Full detail of a stored run (context + both profiles + advice JSON) |
+| `GET /health` | DB connectivity + resolved sibling URLs |
+
+Safety: the advisor's system prompt refuses manipulative, coercive,
+illegal, or harm-directed guidance and never echoes raw profile JSON to
+the caller.
 
 ## Project layout
 
@@ -163,27 +203,36 @@ watchpoints, escalation_plan}`. Ships in a follow-up PR.
 ├── requirements.txt
 ├── Dockerfile
 ├── docker-compose.yml
-├── run.py                  # whoiswhat dev server
-├── run_whoishoss.py        # whoishoss dev server
-├── wsgi.py                 # whoiswhat WSGI
-├── wsgi_whoishoss.py       # whoishoss WSGI
+├── run.py                    # whoiswhat dev server
+├── run_whoishoss.py          # whoishoss dev server
+├── run_meeting_advisor.py    # meeting_advisor dev server
+├── wsgi.py                   # whoiswhat WSGI
+├── wsgi_whoishoss.py         # whoishoss WSGI
+├── wsgi_meeting_advisor.py   # meeting_advisor WSGI
 ├── data/
-│   ├── raw/                # K taxonomy + training source files
-│   └── hoss/               # HOSS config, questions, prompts, samples
-├── whoiswhat/              # K taxonomy classifier
-│   ├── __init__.py         # create_app(), CLI
-│   ├── extensions.py       # db (whoiswhat)
+│   ├── raw/                  # K taxonomy + training source files
+│   └── hoss/                 # HOSS config, questions, prompts, samples
+├── whoiswhat/                # K taxonomy classifier
+│   ├── __init__.py           # create_app(), CLI
+│   ├── extensions.py         # db (whoiswhat)
 │   ├── models.py
 │   ├── importer.py
 │   ├── llm.py
 │   └── routes.py
-├── whoishoss/              # HOSS classifier
-│   ├── __init__.py         # create_app(), CLI
-│   ├── extensions.py       # db (whoishoss — separate instance)
+├── whoishoss/                # HOSS classifier
+│   ├── __init__.py           # create_app(), CLI
+│   ├── extensions.py         # db (whoishoss — separate instance)
 │   ├── models.py
-│   ├── scoring.py          # deterministic items→score→level pipeline
+│   ├── scoring.py            # deterministic items→score→level pipeline
 │   ├── importer.py
-│   ├── llm.py              # uses hoss_classifier_system.txt + explainer
+│   ├── llm.py                # uses hoss_classifier_system.txt + explainer
+│   └── routes.py
+├── meeting_advisor/          # Aggregator / HTTP orchestrator
+│   ├── __init__.py           # create_app()
+│   ├── extensions.py         # db (advisor — separate instance)
+│   ├── models.py             # subject_cache + advice_runs
+│   ├── clients.py            # HTTP clients for the two sibling services
+│   ├── llm.py                # merged-profile → meeting brief
 │   └── routes.py
 ├── .env.example
 └── .env
@@ -191,7 +240,8 @@ watchpoints, escalation_plan}`. Ships in a follow-up PR.
 
 ## Optional next steps
 
-- `meeting_advisor` aggregator microservice
 - Flask-Migrate (Alembic) for schema evolution
 - `pytest` suite and auth for non-public deployments
 - Promote SQLite → PostgreSQL by changing only the `*_DATABASE_URL`
+- Persist WhoIsWhat classifications so the advisor can reuse them too
+- Rate limiting and request IDs for cross-service tracing

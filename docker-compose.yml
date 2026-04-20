@@ -32,6 +32,27 @@ services:
       - whoishoss_db:/data/whoishoss
       - ./data/hoss:/app/data/hoss:ro
 
+  meeting_advisor:
+    build: .
+    image: flask-sample/meeting_advisor:dev
+    command: python run_meeting_advisor.py
+    environment:
+      FLASK_DEBUG: "1"
+      PORT: "5003"
+      ADVISOR_DATABASE_URL: "sqlite:////data/meeting_advisor/meeting_advisor.db"
+      WHOISWHAT_URL: "http://whoiswhat:5000"
+      WHOISHOSS_URL: "http://whoishoss:5002"
+      OPENAI_API_KEY: "${OPENAI_API_KEY}"
+      OPENAI_MODEL: "${OPENAI_MODEL:-gpt-4o-mini}"
+    ports:
+      - "5003:5003"
+    volumes:
+      - advisor_db:/data/meeting_advisor
+    depends_on:
+      - whoiswhat
+      - whoishoss
+
 volumes:
   whoiswhat_db:
   whoishoss_db:
+  advisor_db:
