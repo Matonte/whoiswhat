@@ -1,0 +1,37 @@
+services:
+  whoiswhat:
+    build: .
+    image: flask-sample/whoiswhat:dev
+    command: python run.py
+    environment:
+      FLASK_DEBUG: "1"
+      HOST: "0.0.0.0"
+      PORT: "5000"
+      DATABASE_URL: "sqlite:////data/whoiswhat/whoiswhat.db"
+      OPENAI_API_KEY: "${OPENAI_API_KEY}"
+      OPENAI_MODEL: "${OPENAI_MODEL:-gpt-4o-mini}"
+    ports:
+      - "5001:5000"
+    volumes:
+      - whoiswhat_db:/data/whoiswhat
+      - ./data/raw:/app/data/raw:ro
+
+  whoishoss:
+    build: .
+    image: flask-sample/whoishoss:dev
+    command: python run_whoishoss.py
+    environment:
+      FLASK_DEBUG: "1"
+      PORT: "5002"
+      HOSS_DATABASE_URL: "sqlite:////data/whoishoss/whoishoss.db"
+      OPENAI_API_KEY: "${OPENAI_API_KEY}"
+      OPENAI_MODEL: "${OPENAI_MODEL:-gpt-4o-mini}"
+    ports:
+      - "5002:5002"
+    volumes:
+      - whoishoss_db:/data/whoishoss
+      - ./data/hoss:/app/data/hoss:ro
+
+volumes:
+  whoiswhat_db:
+  whoishoss_db:

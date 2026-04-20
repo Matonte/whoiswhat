@@ -1,0 +1,94 @@
+{
+  "weights": {
+    "square": 0.2,
+    "punisher": 0.3,
+    "power": 0.25,
+    "skull": 0.25
+  },
+  "thresholds": [
+    {
+      "level": 0,
+      "min_score": 0.0,
+      "max_score": 1.49,
+      "display_label": "WHISPURIN LIBRUL",
+      "internal_label": "low_hoss"
+    },
+    {
+      "level": 1,
+      "min_score": 1.5,
+      "max_score": 1.99,
+      "display_label": "WHISPURIN LIBRUL",
+      "internal_label": "soft_square"
+    },
+    {
+      "level": 2,
+      "min_score": 2.0,
+      "max_score": 2.99,
+      "display_label": "ANUTHER BARB OR DEB OR JONNY",
+      "internal_label": "normie_conventional"
+    },
+    {
+      "level": 3,
+      "min_score": 3.0,
+      "max_score": 3.99,
+      "display_label": "HE'LL YEAH BORTHER",
+      "internal_label": "emerging_hoss"
+    },
+    {
+      "level": 4,
+      "min_score": 4.0,
+      "max_score": 4.49,
+      "display_label": "\ud83d\udd25\ud83d\udd95\ud83d\udc80\ud83d\udd95\ud83d\udd25",
+      "internal_label": "full_hoss"
+    },
+    {
+      "level": 5,
+      "min_score": 4.5,
+      "max_score": 5.0,
+      "display_label": "\ud83d\udd25\ud83d\udd95\ud83d\udc80\ud83d\udd95\ud83d\udd25",
+      "internal_label": "apocalypse_hoss"
+    }
+  ],
+  "dimension_mapping": {
+    "square_items": [
+      1,
+      2,
+      3,
+      4,
+      13,
+      14,
+      22,
+      23,
+      25,
+      28
+    ],
+    "punisher_items": [
+      5,
+      6,
+      7,
+      8,
+      15,
+      26,
+      27,
+      30
+    ],
+    "power_items": [
+      9,
+      10,
+      11,
+      12,
+      24,
+      28
+    ],
+    "skull_items": [
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      24,
+      29
+    ]
+  }
+}

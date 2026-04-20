@@ -1,15 +1,24 @@
-# WhoIsWhat
+# WhoIsWhat — monorepo
 
-Flask + SQLAlchemy app that loads a **K taxonomy** (categories + dimensions + edges) and **behavior-classification training examples** from `data/raw/`, stores them in a relational schema, and exposes them over JSON APIs for evaluation and training workflows.
+Two Flask microservices and (planned) an aggregator, designed as a work-sample
+project that classifies subjects along two independent taxonomies:
+
+| Service | Role | Port | DB |
+|---|---|---|---|
+| [`whoiswhat/`](./whoiswhat) | K-taxonomy classifier (criteria + labeled examples) | **5001** (docker) / 5000 (local) | `whoiswhat.db` |
+| [`whoishoss/`](./whoishoss) | HOSS F-scale archetype classifier | **5002** | `whoishoss.db` |
+| `meeting_advisor/` _(planned)_ | Calls both services, recommends how to meet a subject in a given context | 5003 | — |
+
+Each service owns its own blueprint, SQLAlchemy `db` instance, SQLite file,
+data folder, and prompts — they can be deployed independently.
 
 ## Requirements
 
 - Python 3.12+ (see `requirements.txt`)
-- A virtual environment (recommended)
+- Docker + Docker Compose (optional, for the multi-service flow)
+- OpenAI API key (for `/classify` and `/hoss`)
 
-## Setup
-
-From the project root:
+## Setup (local, without Docker)
 
 ```powershell
 python -m venv venv
@@ -18,64 +27,133 @@ pip install -r requirements.txt
 copy .env.example .env
 ```
 
-Edit `.env` and set `DATABASE_URL` (SQLite or PostgreSQL). For SQLite, prefer running commands from the project root with e.g. `DATABASE_URL=sqlite:///./whoiswhat.db`.
+Edit `.env`:
 
-## Dataset files (`data/raw/`)
+- `DATABASE_URL` — whoiswhat DB (SQLite or PostgreSQL)
+- `HOSS_DATABASE_URL` — whoishoss DB (separate SQLite file by default)
+- `OPENAI_API_KEY` — required for both classifier UIs
 
-Canonical imports (used by the loader):
+Run **each service in its own terminal**:
+
+```powershell
+# terminal 1 — whoiswhat (K taxonomy)
+python run.py                       # http://127.0.0.1:5000
+
+# terminal 2 — whoishoss (HOSS)
+python run_whoishoss.py             # http://127.0.0.1:5002
+```
+
+On first startup each service creates its tables and, if empty, imports its
+data folder (`data/raw/` for whoiswhat, `data/hoss/` for whoishoss).
+
+## Setup (Docker Compose — both services together)
+
+```powershell
+docker compose up --build
+```
+
+- whoiswhat → http://127.0.0.1:5001
+- whoishoss → http://127.0.0.1:5002
+
+Each service gets its own named volume (`whoiswhat_db`, `whoishoss_db`) so
+the databases are independent and persist across restarts. `OPENAI_API_KEY`
+is read from your host `.env`.
+
+## WhoIsWhat (K taxonomy service)
+
+Dataset files live in `data/raw/`:
 
 | File | Role |
 |------|------|
-| `k_training_schema.json` | Evaluation criteria: task type, label space, dimension definitions, field list |
-| `k_taxonomy_graph.json` | Taxonomy **nodes** and **edges** (same graph as CSV bundle) |
-| `k_training_examples.jsonl` | Training rows (one JSON object per line) |
-| `k_training_examples.csv` | Same examples in CSV form; merged with JSONL by `example_id` |
+| `k_training_schema.json` | Evaluation criteria: task type, label space, dimensions, fields |
+| `k_taxonomy_graph.json` | Taxonomy nodes + edges |
+| `k_training_examples.jsonl` / `.csv` | Labeled training rows |
 
-Also present for reference / tooling (not required for DB import):
+Endpoints:
 
-- `k_taxonomy_nodes.csv`, `k_taxonomy_edges.csv` — same graph as `k_taxonomy_graph.json`
-- `k_taxonomy.graphml` — same graph in GraphML
-- `*_preview.csv` — small previews
+| Endpoint | Description |
+|----------|-------------|
+| `GET /` | Index with links |
+| `GET /classify` | UI — enter a subject name, two panels show K grouping + reasoning |
+| `POST /api/v1/classify` | JSON `{"subject_name":"..."}` → structured classification |
+| `GET /api/v1/evaluation-criteria` | Parsed `k_training_schema.json` |
+| `GET /api/v1/taxonomy/graph` / `/nodes` / `/edges` | Taxonomy |
+| `GET /api/v1/training-examples?limit=500` | Labeled examples |
+| `GET /health` | DB connectivity |
 
-To refresh files from another machine, copy them into `data/raw/` and run:
+Reimport the dataset at any time:
 
 ```powershell
 flask --app wsgi import-k-data --force
 ```
 
-(`wsgi.py` instantiates the app so Flask CLI commands are available.)
+## WhoIsHoss (HOSS F-scale classifier)
 
-## Run (development)
+Dataset files live in `data/hoss/`:
 
-```powershell
-python run.py
-```
+| File | Role |
+|------|------|
+| `hoss_labels.json` | Weights, thresholds, item→dimension mapping |
+| `f_scale_questions.json` | 30 F-scale-style items (1–6 scale) |
+| `hoss_training_samples.jsonl` / `.csv` | Synthetic reference profiles |
+| `hoss_classifier_system.txt` / `hoss_explainer_system.txt` | Prompts |
+| `hoss_agent.example.json` | Example runtime config |
+| `schema.sql` | Canonical SQL schema (mirrored by `whoishoss/models.py`) |
 
-On first startup this creates tables and, if the taxonomy is empty, imports from `data/raw/`.
+Pipeline (matches the HOSS starter README):
 
-## HTTP API
+1. Classifier prompt → model infers `item_01..item_30` (1–6 each).
+2. `scoring.py` deterministically computes **square**, **punisher**, **power**, **skull** from the item→dimension mapping.
+3. `hoss_score = 0.20·square + 0.30·punisher + 0.25·power + 0.25·skull`.
+4. Score is mapped to a **level (0–5)**, **display label**, and **internal label** via thresholds.
+5. Explainer prompt produces the final narrative.
+6. Result is persisted to `hoss_profiles` and the raw request/response pair to `hoss_runs`.
+
+Endpoints:
 
 | Endpoint | Description |
 |----------|-------------|
-| `GET /api/v1/evaluation-criteria` | Parsed `k_training_schema.json` (dataset name, label space, dimensions, fields) |
-| `GET /api/v1/taxonomy/graph` | Full `k_taxonomy_graph.json` snapshot |
-| `GET /api/v1/taxonomy/nodes` | All taxonomy nodes |
-| `GET /api/v1/taxonomy/edges` | All taxonomy edges |
-| `GET /api/v1/training-examples?limit=500` | Labeled training examples (default limit 500, max 2000) |
+| `GET /` | Index with links |
+| `GET /hoss` | UI — name + optional source / notes; two panels show HOSS level + explanation |
+| `POST /api/v1/hoss/classify` | JSON `{"name":"...", "source":"...", "input_summary":"..."}` |
+| `GET /api/v1/hoss/labels` | Thresholds + weights + item mapping |
+| `GET /api/v1/hoss/questions` | 30-item F-scale bank |
+| `GET /api/v1/hoss/training-examples` | Synthetic reference profiles |
+| `GET /api/v1/hoss/profiles` / `/<id>` | Stored classifications |
 | `GET /health` | DB connectivity |
-| `GET /classify` | **Web UI** — enter a subject name only; two read-only panels show K grouping and reasoning |
-| `POST /api/v1/classify` | JSON body `{"subject_name":"..."}` (optional `"character"` for API clients) → structured classification |
 
-### ChatGPT / OpenAI
+Reimport the HOSS dataset:
 
-The classifier sends your **stored evaluation criteria** (`k_training_schema`) and **training examples** from the database in the **system** prompt, then asks the model to assign a `classification_code` / `classification_label`, three 0–5 scores, and a `short_rationale`.
+```powershell
+flask --app wsgi_whoishoss import-hoss-data --force
+```
 
-1. Add to `.env`: `OPENAI_API_KEY=sk-...` (see `.env.example`).
-2. Optionally set `OPENAI_MODEL` (default `gpt-4o-mini`).
-3. Ensure data is imported (`python run.py` once or `flask --app wsgi import-k-data`).
-4. Open **http://127.0.0.1:5000/classify** and submit the form.
+**Safety**: classification is scoped to fictional characters, invented
+personas, or opt-in self-reports — the classifier prompt enforces this.
+Output is a stylized archetypal label, not a diagnosis.
 
-The API never sends your API key to the browser; only the Flask server calls OpenAI.
+## Planned: `meeting_advisor/`
+
+A third microservice that calls both classifiers, merges the two structured
+profiles with a user-supplied **meeting context** (setting, role, stakes,
+goals), and asks an LLM for a meeting-preparation brief:
+
+```
+POST /api/v1/advise
+{
+  "subject_name": "...",
+  "notes": "...",
+  "context": {
+    "setting": "work|social|family|negotiation|first-date|conflict",
+    "your_role": "...",
+    "stakes": "low|medium|high",
+    "goals": "..."
+  }
+}
+```
+
+Returns `{risk_level, key_observations, do, dont, opening_move,
+watchpoints, escalation_plan}`. Ships in a follow-up PR.
 
 ## Project layout
 
@@ -83,30 +161,37 @@ The API never sends your API key to the browser; only the Flask server calls Ope
 .
 ├── README.md
 ├── requirements.txt
-├── run.py
-├── wsgi.py
+├── Dockerfile
+├── docker-compose.yml
+├── run.py                  # whoiswhat dev server
+├── run_whoishoss.py        # whoishoss dev server
+├── wsgi.py                 # whoiswhat WSGI
+├── wsgi_whoishoss.py       # whoishoss WSGI
 ├── data/
-│   └── raw/                 # K taxonomy + training source files
-├── whoiswhat/
-│   ├── __init__.py          # create_app(), Flask CLI
-│   ├── extensions.py
-│   ├── models.py            # DatasetSchema, TaxonomyNode, TaxonomyEdge, TrainingExample
-│   ├── importer.py          # load JSON/JSONL/CSV into DB
-│   ├── llm.py               # OpenAI classification using DB criteria + examples
+│   ├── raw/                # K taxonomy + training source files
+│   └── hoss/               # HOSS config, questions, prompts, samples
+├── whoiswhat/              # K taxonomy classifier
+│   ├── __init__.py         # create_app(), CLI
+│   ├── extensions.py       # db (whoiswhat)
+│   ├── models.py
+│   ├── importer.py
+│   ├── llm.py
+│   └── routes.py
+├── whoishoss/              # HOSS classifier
+│   ├── __init__.py         # create_app(), CLI
+│   ├── extensions.py       # db (whoishoss — separate instance)
+│   ├── models.py
+│   ├── scoring.py          # deterministic items→score→level pipeline
+│   ├── importer.py
+│   ├── llm.py              # uses hoss_classifier_system.txt + explainer
 │   └── routes.py
 ├── .env.example
 └── .env
 ```
 
-## Database schema (summary)
-
-- **`dataset_schemas`** — JSON documents: evaluation spec (`dataset_name` = `k_taxonomy_training_examples`) and full graph snapshot (`k_taxonomy_graph`).
-- **`taxonomy_nodes`** — `node_id`, `node_type`, `label`, `description`.
-- **`taxonomy_edges`** — `source_node_id`, `target_node_id`, `relation`.
-- **`training_examples`** — columns aligned with `k_training_schema.json` `fields`.
-
 ## Optional next steps
 
-- Flask-Migrate (Alembic) for schema evolution  
-- GraphML parser if you want first-class imports from `.graphml` only  
-- Tests (`pytest`) and auth for non-public deployments  
+- `meeting_advisor` aggregator microservice
+- Flask-Migrate (Alembic) for schema evolution
+- `pytest` suite and auth for non-public deployments
+- Promote SQLite → PostgreSQL by changing only the `*_DATABASE_URL`

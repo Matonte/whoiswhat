@@ -1,0 +1,182 @@
+[
+  {
+    "id": 1,
+    "text": "People should stick closely to traditional values.",
+    "scale_min": 1,
+    "scale_max": 6
+  },
+  {
+    "id": 2,
+    "text": "Respect for authority is one of the most important virtues.",
+    "scale_min": 1,
+    "scale_max": 6
+  },
+  {
+    "id": 3,
+    "text": "Society works best when rules are enforced firmly.",
+    "scale_min": 1,
+    "scale_max": 6
+  },
+  {
+    "id": 4,
+    "text": "Too much openness to new lifestyles weakens the social order.",
+    "scale_min": 1,
+    "scale_max": 6
+  },
+  {
+    "id": 5,
+    "text": "Disobedient people usually deserve strong consequences.",
+    "scale_min": 1,
+    "scale_max": 6
+  },
+  {
+    "id": 6,
+    "text": "Some people need harsh discipline to learn their place.",
+    "scale_min": 1,
+    "scale_max": 6
+  },
+  {
+    "id": 7,
+    "text": "Troublemakers are best handled forcefully.",
+    "scale_min": 1,
+    "scale_max": 6
+  },
+  {
+    "id": 8,
+    "text": "Mercy is overrated when order is at stake.",
+    "scale_min": 1,
+    "scale_max": 6
+  },
+  {
+    "id": 9,
+    "text": "Real leaders must project strength and toughness.",
+    "scale_min": 1,
+    "scale_max": 6
+  },
+  {
+    "id": 10,
+    "text": "Most conflicts are settled by power, not kindness.",
+    "scale_min": 1,
+    "scale_max": 6
+  },
+  {
+    "id": 11,
+    "text": "People naturally sort into strong and weak.",
+    "scale_min": 1,
+    "scale_max": 6
+  },
+  {
+    "id": 12,
+    "text": "A society without hard leadership falls apart.",
+    "scale_min": 1,
+    "scale_max": 6
+  },
+  {
+    "id": 13,
+    "text": "Too much introspection makes people soft.",
+    "scale_min": 1,
+    "scale_max": 6
+  },
+  {
+    "id": 14,
+    "text": "Feelings should not get in the way of duty.",
+    "scale_min": 1,
+    "scale_max": 6
+  },
+  {
+    "id": 15,
+    "text": "People should toughen up instead of dwelling on emotions.",
+    "scale_min": 1,
+    "scale_max": 6
+  },
+  {
+    "id": 16,
+    "text": "The world is full of hidden threats most people ignore.",
+    "scale_min": 1,
+    "scale_max": 6
+  },
+  {
+    "id": 17,
+    "text": "Dangerous groups often work behind the scenes.",
+    "scale_min": 1,
+    "scale_max": 6
+  },
+  {
+    "id": 18,
+    "text": "You can never be too careful about corruption spreading.",
+    "scale_min": 1,
+    "scale_max": 6
+  },
+  {
+    "id": 19,
+    "text": "People are often plotting more than they admit.",
+    "scale_min": 1,
+    "scale_max": 6
+  },
+  {
+    "id": 20,
+    "text": "Moral decline usually starts with permissiveness.",
+    "scale_min": 1,
+    "scale_max": 6
+  },
+  {
+    "id": 21,
+    "text": "Sexual permissiveness is a sign of social decay.",
+    "scale_min": 1,
+    "scale_max": 6
+  },
+  {
+    "id": 22,
+    "text": "Breaking family norms leads to disorder.",
+    "scale_min": 1,
+    "scale_max": 6
+  },
+  {
+    "id": 23,
+    "text": "Clean-cut social roles keep society stable.",
+    "scale_min": 1,
+    "scale_max": 6
+  },
+  {
+    "id": 24,
+    "text": "Strange beliefs and unusual lifestyles often signal deeper problems.",
+    "scale_min": 1,
+    "scale_max": 6
+  },
+  {
+    "id": 25,
+    "text": "Ordinary people need guidance from stronger authorities.",
+    "scale_min": 1,
+    "scale_max": 6
+  },
+  {
+    "id": 26,
+    "text": "People who challenge tradition too much often become destructive.",
+    "scale_min": 1,
+    "scale_max": 6
+  },
+  {
+    "id": 27,
+    "text": "Softness invites chaos.",
+    "scale_min": 1,
+    "scale_max": 6
+  },
+  {
+    "id": 28,
+    "text": "Hierarchy is natural and necessary.",
+    "scale_min": 1,
+    "scale_max": 6
+  },
+  {
+    "id": 29,
+    "text": "Suspicion keeps you safe in a dangerous world.",
+    "scale_min": 1,
+    "scale_max": 6
+  },
+  {
+    "id": 30,
+    "text": "Firm punishment is often the only language bad actors understand.",
+    "scale_min": 1,
+    "scale_max": 6
+  }
+]

@@ -1,0 +1,8 @@
+{
+  "model": "your-llm-name",
+  "allow_real_people": false,
+  "store_runs": true,
+  "training_file": "data/hoss_training_samples.jsonl",
+  "question_bank": "data/f_scale_questions.json",
+  "labels_file": "config/hoss_labels.json"
+}
