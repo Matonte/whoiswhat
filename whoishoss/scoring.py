@@ -109,3 +109,89 @@ def score_from_items(items: dict[str, Any]) -> dict[str, Any]:
         "hoss_score": hoss_score,
         **level_info,
     }
+
+
+TRAIT_LABELS = {
+    "square": "Square (rigid/authoritarian-conformist)",
+    "punisher": "Punisher (aggressive/retributive)",
+    "power": "Power (dominance-seeking)",
+    "skull": "Skull (cruel/malevolent)",
+}
+
+
+def compute_contributions(
+    items: dict[str, int],
+    traits: dict[str, float],
+    hoss_score: float,
+    cfg: dict[str, Any],
+    *,
+    top_n_items: int = 3,
+) -> dict[str, Any]:
+    """Explain *why* a HOSS score landed where it did.
+
+    Returns per-trait contributions (avg * weight), the % share of the total
+    score each dimension contributed, the top-rated items inside each
+    dimension, and the thresholds band the final score fell into — enough
+    for the explainer prompt to ground its narrative in actual arithmetic.
+    """
+    weights = cfg["weights"]
+    mapping = cfg["dimension_mapping"]
+    thresholds = cfg["thresholds"]
+
+    contributions: dict[str, dict[str, Any]] = {}
+    total = 0.0
+    for trait_key, avg in traits.items():
+        w = weights.get(trait_key, 0.0)
+        contrib = round(w * avg, 3)
+        total += contrib
+        ids = mapping.get(f"{trait_key}_items", [])
+        ranked = sorted(
+            (
+                {"item": _item_key(i), "value": items[_item_key(i)]}
+                for i in ids
+                if _item_key(i) in items
+            ),
+            key=lambda r: r["value"],
+            reverse=True,
+        )
+        contributions[trait_key] = {
+            "label": TRAIT_LABELS.get(trait_key, trait_key),
+            "average_1_to_6": avg,
+            "weight": w,
+            "weighted_contribution": contrib,
+            "top_items": ranked[:top_n_items],
+            "bottom_items": ranked[-top_n_items:][::-1] if len(ranked) >= top_n_items else [],
+        }
+
+    for trait_key, row in contributions.items():
+        row["share_of_score_pct"] = (
+            round(100.0 * row["weighted_contribution"] / total, 1) if total > 0 else 0.0
+        )
+
+    ranked_traits = sorted(
+        contributions.items(), key=lambda kv: kv[1]["weighted_contribution"], reverse=True
+    )
+
+    band = None
+    for b in thresholds:
+        if b["min_score"] <= hoss_score <= b["max_score"]:
+            band = {
+                "level": b["level"],
+                "min_score": b["min_score"],
+                "max_score": b["max_score"],
+                "display_label": b["display_label"],
+                "internal_label": b["internal_label"],
+            }
+            break
+
+    return {
+        "formula": "hoss_score = "
+        + " + ".join(
+            f"{weights[k]}*{k}" for k in ("square", "punisher", "power", "skull")
+        ),
+        "hoss_score": hoss_score,
+        "band": band,
+        "contributions": contributions,
+        "trait_rank": [k for k, _ in ranked_traits],
+        "primary_driver": ranked_traits[0][0] if ranked_traits else None,
+    }

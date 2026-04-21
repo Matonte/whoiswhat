@@ -188,11 +188,15 @@ def explain_hoss(
     traits: dict[str, float],
     hoss_score: float,
     display_label: str,
-    short_explanation: str | None = None,
     *,
+    f_scale_items: dict[str, int] | None = None,
+    hoss_level: int | None = None,
+    derivation: dict[str, Any] | None = None,
+    short_explanation: str | None = None,
     model: str | None = None,
 ) -> str:
-    """Optional step: use the explainer prompt to produce a polished 2-paragraph narrative."""
+    """Produce a 2-paragraph explanation *of the score*, grounded in the
+    weighted-contribution arithmetic plus the highest-rated items."""
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
         return short_explanation or ""
@@ -205,14 +209,30 @@ def explain_hoss(
         or "gpt-5.4-mini"
     )
 
-    user = (
-        f"Subject: {name} ({source})\n"
-        f"Traits: {json.dumps(traits)}\n"
-        f"HOSS score: {hoss_score}\n"
-        f"Display label: {display_label}\n"
-    )
+    payload: dict[str, Any] = {
+        "subject": {"name": name, "source": source},
+        "hoss_score": hoss_score,
+        "hoss_level": hoss_level,
+        "display_label": display_label,
+        "traits": traits,
+    }
+    if derivation:
+        payload["derivation"] = derivation
+    if f_scale_items:
+        payload["f_scale_items"] = f_scale_items
+    try:
+        payload["question_bank"] = _question_bank()
+    except Exception:
+        pass
     if short_explanation:
-        user += f"\nClassifier notes:\n{short_explanation}\n"
+        payload["classifier_notes"] = short_explanation
+
+    user = (
+        "Explain why this subject got this HOSS score using the derivation "
+        "below. Follow the two-paragraph structure in the system prompt "
+        "exactly, and include the numeric contributions + item references.\n\n"
+        f"{json.dumps(payload, ensure_ascii=False, indent=2)}"
+    )
 
     client = OpenAI(api_key=api_key)
     try:
@@ -222,7 +242,7 @@ def explain_hoss(
                 {"role": "system", "content": explainer_prompt},
                 {"role": "user", "content": user},
             ],
-            temperature=0.4,
+            temperature=0.3,
         )
     except OpenAIError:
         return short_explanation or ""

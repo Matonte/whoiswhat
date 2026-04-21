@@ -279,7 +279,7 @@ def hoss_classify_api():
 
     try:
         from .llm import classify_hoss, explain_hoss
-        from .scoring import score_from_items
+        from .scoring import compute_contributions, load_labels_config, score_from_items
 
         llm_result = classify_hoss(name, source, input_summary)
         items = llm_result.get("f_scale_items") or {}
@@ -296,6 +296,14 @@ def hoss_classify_api():
             llm_result.get("input_summary") or input_summary or ""
         ).strip() or None
 
+        cfg = load_labels_config()
+        derivation = compute_contributions(
+            scored["f_scale_items"],
+            scored["traits"],
+            scored["hoss_score"],
+            cfg,
+        )
+
         short_explanation = (llm_result.get("short_explanation") or "").strip() or None
         explanation = explain_hoss(
             name=name,
@@ -303,6 +311,9 @@ def hoss_classify_api():
             traits=scored["traits"],
             hoss_score=scored["hoss_score"],
             display_label=scored["display_label"],
+            f_scale_items=scored["f_scale_items"],
+            hoss_level=scored["hoss_level"],
+            derivation=derivation,
             short_explanation=short_explanation,
         )
 
