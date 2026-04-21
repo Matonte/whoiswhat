@@ -80,7 +80,12 @@ def classify_subject(
     if not examples:
         raise RuntimeError("No training examples in the database. Run import-k-data.")
 
-    model = model or os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
+    model = (
+        model
+        or os.environ.get("WHOISWHAT_MODEL")
+        or os.environ.get("OPENAI_MODEL")
+        or "gpt-5.4-mini"
+    )
 
     system = f"""You are an evaluator for a structured behavior-classification task.
 

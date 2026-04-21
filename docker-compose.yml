@@ -9,7 +9,8 @@ services:
       PORT: "5000"
       DATABASE_URL: "sqlite:////data/whoiswhat/whoiswhat.db"
       OPENAI_API_KEY: "${OPENAI_API_KEY}"
-      OPENAI_MODEL: "${OPENAI_MODEL:-gpt-4o-mini}"
+      OPENAI_MODEL: "${OPENAI_MODEL:-gpt-5.4-mini}"
+      WHOISWHAT_MODEL: "${WHOISWHAT_MODEL:-}"
     ports:
       - "5001:5000"
     volumes:
@@ -25,7 +26,8 @@ services:
       PORT: "5002"
       HOSS_DATABASE_URL: "sqlite:////data/whoishoss/whoishoss.db"
       OPENAI_API_KEY: "${OPENAI_API_KEY}"
-      OPENAI_MODEL: "${OPENAI_MODEL:-gpt-4o-mini}"
+      OPENAI_MODEL: "${OPENAI_MODEL:-gpt-5.4-mini}"
+      WHOISHOSS_MODEL: "${WHOISHOSS_MODEL:-}"
     ports:
       - "5002:5002"
     volumes:
@@ -43,7 +45,8 @@ services:
       WHOISWHAT_URL: "http://whoiswhat:5000"
       WHOISHOSS_URL: "http://whoishoss:5002"
       OPENAI_API_KEY: "${OPENAI_API_KEY}"
-      OPENAI_MODEL: "${OPENAI_MODEL:-gpt-4o-mini}"
+      OPENAI_MODEL: "${OPENAI_MODEL:-gpt-5.4-mini}"
+      ADVISOR_MODEL: "${ADVISOR_MODEL:-gpt-5.4}"
     ports:
       - "5003:5003"
     volumes:

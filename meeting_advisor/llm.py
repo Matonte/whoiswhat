@@ -89,7 +89,12 @@ def advise(
             "Neither WhoIsWhat nor WhoIsHoss returned a profile. Cannot produce advice."
         )
 
-    model = model or os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
+    model = (
+        model
+        or os.environ.get("ADVISOR_MODEL")
+        or os.environ.get("OPENAI_MODEL")
+        or "gpt-5.4"
+    )
 
     user_payload = {
         "subject_name": subject_name,

@@ -102,7 +102,12 @@ def classify_hoss(
             "HOSS training samples empty. Run: flask --app whoishoss:create_app import-hoss-data"
         )
 
-    model = model or os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
+    model = (
+        model
+        or os.environ.get("WHOISHOSS_MODEL")
+        or os.environ.get("OPENAI_MODEL")
+        or "gpt-5.4-mini"
+    )
 
     system = f"""{classifier_prompt}
 
@@ -193,7 +198,12 @@ def explain_hoss(
         return short_explanation or ""
 
     explainer_prompt = _load_prompt("hoss_explainer_system.txt")
-    model = model or os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
+    model = (
+        model
+        or os.environ.get("WHOISHOSS_MODEL")
+        or os.environ.get("OPENAI_MODEL")
+        or "gpt-5.4-mini"
+    )
 
     user = (
         f"Subject: {name} ({source})\n"
