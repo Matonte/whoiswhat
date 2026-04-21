@@ -1,13 +1,15 @@
 # WhoIsWhat — monorepo
 
-Two Flask microservices and (planned) an aggregator, designed as a work-sample
-project that classifies subjects along two independent taxonomies:
+Three Flask microservices + a React portal, designed as a work-sample project
+that classifies subjects along two independent taxonomies and generates
+grounded meeting guidance:
 
 | Service | Role | Port | DB |
 |---|---|---|---|
 | [`whoiswhat/`](./whoiswhat) | K-taxonomy classifier (criteria + labeled examples) | **5001** (docker) / 5000 (local) | `whoiswhat.db` |
 | [`whoishoss/`](./whoishoss) | HOSS F-scale archetype classifier | **5002** | `whoishoss.db` |
 | [`meeting_advisor/`](./meeting_advisor) | Aggregator — calls both classifiers over HTTP + LLM meeting guidance | **5003** | `meeting_advisor.db` |
+| [`portal/`](./portal) | React + Vite + Tailwind SPA consuming all three APIs | **5173** | — |
 
 Each service owns its own blueprint, SQLAlchemy `db` instance, SQLite file,
 data folder, and prompts — they can be deployed independently.
@@ -55,6 +57,7 @@ data folder (`data/raw/` for whoiswhat, `data/hoss/` for whoishoss).
 docker compose up --build
 ```
 
+- portal → http://127.0.0.1:5173 (nginx-served SPA that proxies `/api/*` to each service)
 - whoiswhat → http://127.0.0.1:5001
 - whoishoss → http://127.0.0.1:5002
 - meeting_advisor → http://127.0.0.1:5003 (reaches its siblings via Docker DNS: `http://whoiswhat:5000`, `http://whoishoss:5002`)
@@ -62,6 +65,47 @@ docker compose up --build
 Each service gets its own named volume (`whoiswhat_db`, `whoishoss_db`,
 `advisor_db`) so the databases are independent and persist across restarts.
 `OPENAI_API_KEY` is read from your host `.env`.
+
+## Portal (React + Vite + Tailwind SPA)
+
+The Flask pages are still present for each service, but `portal/` is the
+recommended UI. It is a single-page app that fans out to all three services
+and renders one consolidated view: K taxonomy card, HOSS radar card, and
+meeting guidance with risk badge, do/don't lists, opening move, watchpoints,
+and escalation plan. It also shows a sidebar with recent advice runs and live
+health badges for each backend.
+
+Dev (hot-reload):
+
+```powershell
+cd portal
+npm install
+npm run dev               # http://127.0.0.1:5173
+```
+
+The Vite dev server proxies:
+
+- `/api/whoiswhat/*` → `http://127.0.0.1:5000`
+- `/api/whoishoss/*` → `http://127.0.0.1:5002`
+- `/api/advisor/*`   → `http://127.0.0.1:5003`
+
+so the three Flask services only need to be running locally. Override any of
+these via `portal/.env` (`VITE_WHOISWHAT_URL`, `VITE_WHOISHOSS_URL`,
+`VITE_ADVISOR_URL`).
+
+Prod build:
+
+```powershell
+cd portal
+npm run build             # outputs portal/dist
+```
+
+The Docker Compose stack builds a production image that serves the SPA with
+nginx and proxies `/api/*` to the sibling containers on the internal Docker
+network.
+
+Each Flask service enables `flask-cors` on `/api/*` and `/health`; set
+`CORS_ORIGINS` (comma-separated) to lock down the portal's public origin.
 
 ## WhoIsWhat (K taxonomy service)
 
@@ -234,6 +278,16 @@ the caller.
 │   ├── clients.py            # HTTP clients for the two sibling services
 │   ├── llm.py                # merged-profile → meeting brief
 │   └── routes.py
+├── portal/                   # React + Vite + Tailwind SPA
+│   ├── Dockerfile            # multi-stage node build → nginx runtime
+│   ├── nginx.conf            # /api/* → internal service DNS names
+│   ├── vite.config.ts        # dev proxy to 5000 / 5002 / 5003
+│   └── src/
+│       ├── App.tsx
+│       ├── api.ts            # typed fetch client
+│       ├── types.ts
+│       ├── components/       # SubjectForm, cards, history, health
+│       └── components/ui/    # Button, Card, Field, Badge (hand-rolled)
 ├── .env.example
 └── .env
 ```

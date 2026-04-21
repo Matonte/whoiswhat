@@ -52,6 +52,17 @@ services:
       - whoiswhat
       - whoishoss
 
+  portal:
+    build:
+      context: ./portal
+    image: flask-sample/portal:dev
+    ports:
+      - "5173:80"
+    depends_on:
+      - whoiswhat
+      - whoishoss
+      - meeting_advisor
+
 volumes:
   whoiswhat_db:
   whoishoss_db:

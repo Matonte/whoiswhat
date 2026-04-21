@@ -10,6 +10,7 @@ from pathlib import Path
 import click
 from dotenv import load_dotenv
 from flask import Flask, current_app
+from flask_cors import CORS
 
 from .extensions import db
 from .routes import bp as hoss_bp
@@ -31,10 +32,21 @@ def create_app() -> Flask:
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     db.init_app(app)
+    _configure_cors(app)
     app.register_blueprint(hoss_bp)
     _register_cli(app)
 
     return app
+
+
+def _configure_cors(app: Flask) -> None:
+    origins_env = os.getenv("CORS_ORIGINS", "*")
+    if origins_env.strip() == "*":
+        resources = {r"/(api|health)(/.*)?": {"origins": "*"}}
+    else:
+        origins = [o.strip() for o in origins_env.split(",") if o.strip()]
+        resources = {r"/(api|health)(/.*)?": {"origins": origins}}
+    CORS(app, resources=resources)
 
 
 def _register_cli(app: Flask) -> None:

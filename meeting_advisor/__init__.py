@@ -10,6 +10,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from flask import Flask
+from flask_cors import CORS
 
 from .extensions import db
 from .routes import bp as advisor_bp
@@ -32,6 +33,17 @@ def create_app() -> Flask:
     )
 
     db.init_app(app)
+    _configure_cors(app)
     app.register_blueprint(advisor_bp)
 
     return app
+
+
+def _configure_cors(app: Flask) -> None:
+    origins_env = os.getenv("CORS_ORIGINS", "*")
+    if origins_env.strip() == "*":
+        resources = {r"/(api|health)(/.*)?": {"origins": "*"}}
+    else:
+        origins = [o.strip() for o in origins_env.split(",") if o.strip()]
+        resources = {r"/(api|health)(/.*)?": {"origins": origins}}
+    CORS(app, resources=resources)

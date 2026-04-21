@@ -3,3 +3,14 @@
 venv/
 __pycache__/
 *.pyc
+
+# Portal (React + Vite)
+portal/node_modules/
+portal/dist/
+portal/.vite/
+portal/*.log
+portal/.tmp_*
+
+# Local dev scratch
+.tmp_*.log
+.tmp_*.err
