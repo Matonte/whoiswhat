@@ -15,7 +15,7 @@ export function Label({
   return (
     <label
       className={cn(
-        "block text-xs font-semibold uppercase tracking-[0.1em] text-[color:var(--color-muted)] mb-1.5",
+        "block text-[0.74rem] font-semibold uppercase tracking-[0.11em] text-[color:var(--fg-dim)] mb-1.5",
         className
       )}
       {...props}
@@ -24,7 +24,7 @@ export function Label({
 }
 
 const fieldBase =
-  "w-full rounded-lg bg-white/[0.04] border border-white/10 px-3.5 py-2.5 text-sm text-white placeholder:text-[color:var(--color-muted)]/60 outline-none transition focus:border-indigo-400/60 focus:bg-white/[0.06] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.18)]"
+  "w-full rounded-[var(--radius-inner)] bg-[color:var(--bg-grid)] border border-[color:var(--border)] px-3 py-2 text-[0.95rem] text-[color:var(--fg)] placeholder:text-[color:var(--fg-dim)] outline-none transition-[border-color,box-shadow] font-medium focus:border-[color:var(--accent-dim)] focus:shadow-[0_0_0_1px_var(--accent-glow)]"
 
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
   ({ className, ...props }, ref) => (
@@ -39,7 +39,7 @@ export const Textarea = forwardRef<
 >(({ className, ...props }, ref) => (
   <textarea
     ref={ref}
-    className={cn(fieldBase, "min-h-[5.5rem] leading-relaxed resize-y", className)}
+      className={cn(fieldBase, "min-h-[5.5rem] leading-relaxed resize-y font-[family-name:var(--font-mono)] text-[0.85rem]", className)}
     {...props}
   />
 ))
@@ -58,13 +58,13 @@ export const Select = forwardRef<
     )}
     style={{
       backgroundImage:
-        "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'><path d='M2.5 4.5L6 8L9.5 4.5' stroke='%237b88b8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>\")",
+        "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'><path d='M2.5 4.5L6 8L9.5 4.5' stroke='%2362c9a8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>\")",
       backgroundPosition: "right 0.85rem center",
     }}
     {...props}
   >
-    {options.map((o) => (
-      <option key={o.value} value={o.value} className="text-surface">
+      {options.map((o) => (
+        <option key={o.value} value={o.value}>
         {o.label}
       </option>
     ))}
@@ -90,7 +90,7 @@ export function FieldGroup({
       <Label htmlFor={htmlFor}>{label}</Label>
       {children}
       {hint && (
-        <div className="mt-1 text-[0.72rem] text-[color:var(--color-muted)]">{hint}</div>
+        <div className="mt-1 text-[0.72rem] text-[color:var(--fg-dim)]">{hint}</div>
       )}
     </div>
   )

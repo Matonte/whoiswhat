@@ -43,7 +43,7 @@ export function HistoryPanel({ refreshToken, onSelect }: Props) {
         accent="var(--color-advisor)"
         title={
           <span className="inline-flex items-center gap-2">
-            <History className="h-3.5 w-3.5 text-teal-300" />
+            <History className="h-3.5 w-3.5 text-[color:var(--accent-2)]" />
             Recent advice runs
           </span>
         }
@@ -69,26 +69,26 @@ export function HistoryPanel({ refreshToken, onSelect }: Props) {
           </div>
         )}
         {rows && rows.length === 0 && (
-          <div className="p-5 text-sm text-[color:var(--color-muted)]">
+          <div className="p-5 text-sm text-[color:var(--fg-dim)]">
             No advice runs yet. Submit the form to create one.
           </div>
         )}
         {rows && rows.length > 0 && (
-          <ul className="divide-y divide-white/5 max-h-[28rem] overflow-y-auto">
+          <ul className="divide-y divide-[color:var(--border)] max-h-[28rem] overflow-y-auto">
             {rows.map((r) => (
               <li key={r.id}>
                 <button
                   type="button"
                   onClick={() => pick(r.id)}
-                  className={`w-full text-left px-5 py-3 flex items-center justify-between gap-3 hover:bg-white/[0.03] transition ${
-                    pickedId === r.id ? "bg-white/[0.05]" : ""
+                  className={`w-full text-left px-5 py-3 flex items-center justify-between gap-3 transition-colors hover:bg-[rgba(79,255,196,0.06)] ${
+                    pickedId === r.id ? "bg-[rgba(79,255,196,0.08)]" : ""
                   }`}
                 >
                   <div className="min-w-0">
-                    <div className="text-sm font-medium text-white truncate">
+                    <div className="text-sm font-medium text-[color:var(--fg)] truncate font-[family-name:var(--font-mono)]">
                       {r.subject_name}
                     </div>
-                    <div className="text-[0.7rem] text-[color:var(--color-muted)] truncate">
+                    <div className="text-[0.7rem] text-[color:var(--fg-dim)] truncate font-[family-name:var(--font-mono)]">
                       {r.source_hint || "—"} · {formatTimestamp(r.created_at)}
                     </div>
                   </div>

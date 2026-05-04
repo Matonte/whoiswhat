@@ -16,7 +16,7 @@ export function KProfileCard({ profile, loading, error }: Props) {
         accent="var(--color-contact-advisor)"
         title={
           <span className="inline-flex items-center gap-2">
-            <Tags className="h-3.5 w-3.5 text-indigo-300" />
+            <Tags className="h-3.5 w-3.5 text-[color:var(--accent)]" />
             K Taxonomy
           </span>
         }
@@ -37,13 +37,13 @@ export function KProfileCard({ profile, loading, error }: Props) {
         )}
 
         {!loading && error && (
-          <div className="rounded-lg border border-rose-400/30 bg-rose-500/10 p-3 text-sm text-rose-200 whitespace-pre-wrap">
+          <div className="rounded-[var(--radius-inner)] border border-[color:var(--danger-muted)] bg-[rgba(140,53,64,0.2)] p-3 text-sm text-[color:var(--danger)] whitespace-pre-wrap font-[family-name:var(--font-mono)]">
             {error}
           </div>
         )}
 
         {!loading && !error && !profile && (
-          <div className="text-sm text-[color:var(--color-muted)]">
+          <div className="text-sm text-[color:var(--fg-dim)]">
             Submit the form to classify a subject along the K taxonomy.
           </div>
         )}
@@ -51,19 +51,19 @@ export function KProfileCard({ profile, loading, error }: Props) {
         {!loading && !error && profile && (
           <div className="space-y-3.5">
             <div>
-              <div className="font-mono text-3xl font-bold tracking-tight text-white">
+              <div className="font-[family-name:var(--font-mono)] text-3xl font-bold tracking-tight text-[color:var(--accent)]">
                 {profile.classification_code}
               </div>
-              <div className="text-sm text-ink-soft mt-0.5">
+              <div className="text-sm text-[color:var(--fg-muted)] mt-0.5">
                 {profile.classification_label}
               </div>
             </div>
             <div className="grid grid-cols-3 gap-2">
-              <Pill label="Awareness" value={profile.awareness_failure_score} accent="#a5b4fc" />
-              <Pill label="Intent" value={profile.intent_failure_score} accent="#a5b4fc" />
-              <Pill label="Control" value={profile.control_failure_score} accent="#a5b4fc" />
+              <Pill label="Awareness" value={profile.awareness_failure_score} accent="var(--accent-2)" />
+              <Pill label="Intent" value={profile.intent_failure_score} accent="var(--accent-2)" />
+              <Pill label="Control" value={profile.control_failure_score} accent="var(--accent-2)" />
             </div>
-            <p className="text-sm text-ink-soft leading-relaxed pt-1">
+            <p className="text-sm text-[color:var(--fg-muted)] leading-relaxed pt-1">
               {profile.short_rationale}
             </p>
           </div>

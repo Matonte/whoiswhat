@@ -12,7 +12,7 @@ export function Skeleton({
   return (
     <div
       className={cn(
-        "animate-pulse rounded-md bg-white/[0.05]",
+        "animate-pulse rounded-[var(--radius-inner)] bg-[color:var(--panel-raised)] border border-[color:var(--border)]",
         className
       )}
       {...props}
@@ -49,13 +49,13 @@ export function Pill({
   accent?: string
 }) {
   return (
-    <div className="rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-2 flex flex-col gap-0.5">
-      <span className="text-[0.68rem] uppercase tracking-[0.1em] text-[color:var(--color-muted)]">
+    <div className="rounded-[var(--radius-inner)] border border-[color:var(--border-strong)] bg-[color:var(--panel-raised)] px-2.5 py-2 flex flex-col gap-0.5">
+      <span className="text-[0.68rem] uppercase tracking-[0.1em] text-[color:var(--fg-dim)] font-[family-name:var(--font-mono)]">
         {label}
       </span>
       <span
-        className="text-sm font-semibold"
-        style={{ color: accent ?? "var(--color-ink)" }}
+        className="text-sm font-semibold font-[family-name:var(--font-mono)]"
+        style={{ color: accent ?? "var(--fg)" }}
       >
         {value}
       </span>

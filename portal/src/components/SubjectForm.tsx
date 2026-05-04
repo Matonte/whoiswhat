@@ -82,7 +82,7 @@ export function SubjectForm({ loading, onSubmit }: Props) {
       </FieldGroup>
 
       <div className="pt-2">
-        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-[color:var(--color-muted)] mb-3">
+        <div className="text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-[color:var(--fg-dim)] mb-3 font-[family-name:var(--font-mono)]">
           Meeting context
         </div>
         <div className="grid gap-4 md:grid-cols-2">

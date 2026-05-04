@@ -35,21 +35,21 @@ export function HealthBadges() {
             key={s.key}
             title={ok ? "healthy" : st?.detail || "unreachable"}
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[0.72rem] font-medium",
+              "inline-flex items-center gap-1.5 rounded-[var(--radius-inner)] border px-2.5 py-1 text-[0.72rem] font-[family-name:var(--font-mono)] tracking-[0.04em]",
               ok
-                ? "border-emerald-400/30 bg-emerald-500/10 text-emerald-300"
-                : "border-rose-400/30 bg-rose-500/10 text-rose-300"
+                ? "border-[color:var(--border-strong)] bg-[color:var(--panel-raised)] text-[color:var(--accent)]"
+                : "border-[color:var(--danger-muted)] bg-[rgba(140,53,64,0.25)] text-[color:var(--danger)]"
             )}
           >
             <span
               aria-hidden
               className={cn(
-                "h-1.5 w-1.5 rounded-full",
-                ok ? "bg-emerald-400 animate-pulse" : "bg-rose-400"
+                "h-1.5 w-1.5 rounded-[1px]",
+                ok ? "bg-[color:var(--accent)] animate-pulse shadow-[0_0_8px_var(--accent-glow)]" : "bg-[color:var(--danger)]"
               )}
             />
             {s.label}
-            <span className="text-[color:var(--color-muted)]">:{s.port}</span>
+            <span className="text-[color:var(--fg-dim)]">:{s.port}</span>
           </div>
         )
       })}
