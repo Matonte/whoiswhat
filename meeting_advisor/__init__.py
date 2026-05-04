@@ -1,6 +1,6 @@
 """Meeting Advisor microservice.
 
-Aggregates WhoIsWhat (K taxonomy) + WhoIsHoss (HOSS F-scale) classifier
+Aggregates Contact Advisor (K taxonomy) + WhoIsHoss (HOSS F-scale) classifier
 outputs for a named subject and asks an LLM for meeting-preparation
 guidance given a user-supplied meeting context.
 """
@@ -26,7 +26,10 @@ def create_app() -> Flask:
     app.config["SQLALCHEMY_DATABASE_URI"] = database_url
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-    app.config["WHOISWHAT_URL"] = os.getenv("WHOISWHAT_URL", "http://127.0.0.1:5000")
+    _ca = (os.getenv("CONTACT_ADVISOR_URL") or os.getenv("WHOISWHAT_URL") or "").strip().rstrip("/")
+    app.config["CONTACT_ADVISOR_URL"] = _ca or "http://127.0.0.1:5000"
+    # Deprecated alias — same base URL as Contact Advisor (formerly WhoIsWhat).
+    app.config["WHOISWHAT_URL"] = app.config["CONTACT_ADVISOR_URL"]
     app.config["WHOISHOSS_URL"] = os.getenv("WHOISHOSS_URL", "http://127.0.0.1:5002")
     app.config["ADVISOR_CACHE_TTL_SECONDS"] = int(
         os.getenv("ADVISOR_CACHE_TTL_SECONDS", str(24 * 3600))

@@ -7,7 +7,7 @@ import type {
   HossProfile,
 } from "./types"
 
-const WHOISWHAT_BASE = "/api/whoiswhat"
+const CONTACT_ADVISOR_BASE = "/api/contact-advisor"
 const WHOISHOSS_BASE = "/api/whoishoss"
 const ADVISOR_BASE = "/api/advisor"
 
@@ -56,18 +56,18 @@ export async function fetchHealth(
 
 export async function fetchAllHealth(): Promise<Record<string, HealthStatus>> {
   const [w, h, a] = await Promise.all([
-    fetchHealth(WHOISWHAT_BASE),
+    fetchHealth(CONTACT_ADVISOR_BASE),
     fetchHealth(WHOISHOSS_BASE),
     fetchHealth(ADVISOR_BASE),
   ])
-  return { whoiswhat: w, whoishoss: h, advisor: a }
+  return { contact_advisor: w, whoishoss: h, advisor: a }
 }
 
 export async function classifyK(
   subject_name: string,
   character?: string | null
 ): Promise<KProfile> {
-  const r = await fetch(`${WHOISWHAT_BASE}/api/v1/classify`, {
+  const r = await fetch(`${CONTACT_ADVISOR_BASE}/api/v1/classify`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ subject_name, character }),

@@ -8,7 +8,8 @@ import tailwindcss from "@tailwindcss/vite"
 // URLs and enable flask-cors on each service for the portal's origin.
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "")
-  const WHOISWHAT = env.VITE_WHOISWHAT_URL || "http://127.0.0.1:5000"
+  const CONTACT_ADVISOR =
+    env.VITE_CONTACT_ADVISOR_URL || env.VITE_WHOISWHAT_URL || "http://127.0.0.1:5000"
   const WHOISHOSS = env.VITE_WHOISHOSS_URL || "http://127.0.0.1:5002"
   const ADVISOR = env.VITE_ADVISOR_URL || "http://127.0.0.1:5003"
 
@@ -23,10 +24,10 @@ export default defineConfig(({ mode }) => {
       port: 5173,
       host: true,
       proxy: {
-        "/api/whoiswhat": {
-          target: WHOISWHAT,
+        "/api/contact-advisor": {
+          target: CONTACT_ADVISOR,
           changeOrigin: true,
-          rewrite: (p) => p.replace(/^\/api\/whoiswhat/, ""),
+          rewrite: (p) => p.replace(/^\/api\/contact-advisor/, ""),
         },
         "/api/whoishoss": {
           target: WHOISHOSS,

@@ -17,7 +17,7 @@ SYSTEM_PROMPT = """You are a meeting-preparation advisor. You are NOT a therapis
 
 You will receive JSON in the user message containing:
 - subject_name: string
-- k_profile: the structured output from the WhoIsWhat K-taxonomy classifier (may be null on error)
+- k_profile: the structured output from the Contact Advisor K-taxonomy classifier (may be null on error)
 - hoss_profile: the structured output from the WhoIsHoss HOSS F-scale classifier (may be null on error)
 - context: the user's planned meeting context (setting, your_role, stakes, goals, optional notes)
 
@@ -86,7 +86,7 @@ def advise(
 
     if k_profile is None and hoss_profile is None:
         raise RuntimeError(
-            "Neither WhoIsWhat nor WhoIsHoss returned a profile. Cannot produce advice."
+            "Neither Contact Advisor (K) nor WhoIsHoss returned a profile. Cannot produce advice."
         )
 
     model = (

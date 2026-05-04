@@ -1,7 +1,7 @@
 """WhoIsHoss microservice — HOSS (F-scale archetype) classifier.
 
 Runs as its own Flask app with its own SQLAlchemy db instance and its own
-SQLite database, so it is a true sibling microservice to `whoiswhat`.
+SQLite database, so it is a true sibling microservice to `contact_advisor`.
 """
 
 import os

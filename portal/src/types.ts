@@ -1,4 +1,4 @@
-export type ServiceName = "whoiswhat" | "whoishoss" | "advisor"
+export type ServiceName = "contact_advisor" | "whoishoss" | "advisor"
 
 export interface KProfile {
   classification_code: string

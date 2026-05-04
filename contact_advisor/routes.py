@@ -15,7 +15,7 @@ _HOME_HTML = """
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>WhoIsWhat</title>
+  <title>Contact Advisor</title>
   <style>
     body { font-family: system-ui, sans-serif; max-width: 42rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
     h1 { font-size: 1.5rem; }
@@ -26,7 +26,7 @@ _HOME_HTML = """
   </style>
 </head>
 <body>
-  <h1>WhoIsWhat</h1>
+  <h1>Contact Advisor</h1>
   <p class="muted">K taxonomy + training dataset (evaluation criteria and labeled examples).</p>
   <ul>
     <li><a href="/api/v1/evaluation-criteria">GET /api/v1/evaluation-criteria</a> — task schema JSON</li>
@@ -34,6 +34,8 @@ _HOME_HTML = """
     <li><a href="/api/v1/taxonomy/edges">GET /api/v1/taxonomy/edges</a></li>
     <li><a href="/api/v1/training-examples">GET /api/v1/training-examples</a></li>
     <li><a href="/health">GET /health</a></li>
+    <li><a href="/api/v1/people-intel/schema">GET /api/v1/people-intel/schema</a> — people-intel request/response shape (sub-agent)</li>
+    <li><code>POST /api/v1/people-intel</code> — public professional context + outreach hints from caller-supplied snippets</li>
     <li><a href="/classify"><strong>Classifier UI</strong></a> — name + character → label + reasoning (ChatGPT)</li>
   </ul>
 </body>
@@ -47,7 +49,7 @@ _CLASSIFY_HTML = """
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>WhoIsWhat — Classify</title>
+  <title>Contact Advisor — Classify</title>
   <style>
     body { font-family: system-ui, sans-serif; max-width: 52rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
     h1 { font-size: 1.35rem; }

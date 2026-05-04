@@ -61,7 +61,7 @@ export default function App() {
             </div>
             <div>
               <div className="text-base font-bold tracking-tight text-white">
-                WhoIsWhat · Portal
+                Contact Advisor · Portal
               </div>
               <div className="text-[0.72rem] text-[color:var(--color-muted)] tracking-wide">
                 K taxonomy · HOSS F-scale · Meeting advisor

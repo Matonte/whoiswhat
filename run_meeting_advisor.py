@@ -3,9 +3,9 @@
 Usage (from project root):
     python run_meeting_advisor.py      # default port 5003
 
-The advisor calls the WhoIsWhat and WhoIsHoss services over HTTP
+The advisor calls the Contact Advisor (K taxonomy) and WhoIsHoss services over HTTP
 (defaults: http://127.0.0.1:5000 and http://127.0.0.1:5002). Override
-with WHOISWHAT_URL / WHOISHOSS_URL env vars.
+with CONTACT_ADVISOR_URL (or deprecated WHOISWHAT_URL) / WHOISHOSS_URL env vars.
 """
 
 import os

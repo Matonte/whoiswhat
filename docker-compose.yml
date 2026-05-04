@@ -1,20 +1,21 @@
 services:
-  whoiswhat:
+  contact_advisor:
     build: .
-    image: flask-sample/whoiswhat:dev
+    image: flask-sample/contact-advisor:dev
     command: python run.py
     environment:
       FLASK_DEBUG: "1"
       HOST: "0.0.0.0"
       PORT: "5000"
-      DATABASE_URL: "sqlite:////data/whoiswhat/whoiswhat.db"
+      DATABASE_URL: "sqlite:////data/contact_advisor/contact_advisor.db"
       OPENAI_API_KEY: "${OPENAI_API_KEY}"
       OPENAI_MODEL: "${OPENAI_MODEL:-gpt-5.4-mini}"
+      CONTACT_ADVISOR_MODEL: "${CONTACT_ADVISOR_MODEL:-}"
       WHOISWHAT_MODEL: "${WHOISWHAT_MODEL:-}"
     ports:
       - "5001:5000"
     volumes:
-      - whoiswhat_db:/data/whoiswhat
+      - contact_advisor_db:/data/contact_advisor
       - ./data/raw:/app/data/raw:ro
 
   whoishoss:
@@ -42,7 +43,8 @@ services:
       FLASK_DEBUG: "1"
       PORT: "5003"
       ADVISOR_DATABASE_URL: "sqlite:////data/meeting_advisor/meeting_advisor.db"
-      WHOISWHAT_URL: "http://whoiswhat:5000"
+      CONTACT_ADVISOR_URL: "http://contact_advisor:5000"
+      WHOISWHAT_URL: "http://contact_advisor:5000"
       WHOISHOSS_URL: "http://whoishoss:5002"
       OPENAI_API_KEY: "${OPENAI_API_KEY}"
       OPENAI_MODEL: "${OPENAI_MODEL:-gpt-5.4-mini}"
@@ -52,7 +54,7 @@ services:
     volumes:
       - advisor_db:/data/meeting_advisor
     depends_on:
-      - whoiswhat
+      - contact_advisor
       - whoishoss
 
   portal:
@@ -62,11 +64,11 @@ services:
     ports:
       - "5173:80"
     depends_on:
-      - whoiswhat
+      - contact_advisor
       - whoishoss
       - meeting_advisor
 
 volumes:
-  whoiswhat_db:
+  contact_advisor_db:
   whoishoss_db:
   advisor_db:

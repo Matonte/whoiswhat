@@ -27,19 +27,19 @@ def _url(service_config_key: str, path: str) -> str:
 
 
 def classify_k(subject_name: str, notes: str | None = None) -> tuple[dict[str, Any] | None, str | None]:
-    """Call WhoIsWhat /api/v1/classify via HTTP."""
+    """Call Contact Advisor /api/v1/classify via HTTP."""
     payload: dict[str, Any] = {"subject_name": subject_name}
     if notes:
         payload["character"] = notes
 
     try:
         r = requests.post(
-            _url("WHOISWHAT_URL", "/api/v1/classify"),
+            _url("CONTACT_ADVISOR_URL", "/api/v1/classify"),
             json=payload,
             timeout=DEFAULT_TIMEOUT,
         )
     except requests.RequestException as e:
-        return None, f"WhoIsWhat unreachable at {current_app.config['WHOISWHAT_URL']}: {e}"
+        return None, f"Contact Advisor unreachable at {current_app.config['CONTACT_ADVISOR_URL']}: {e}"
 
     if r.status_code >= 400:
         try:
@@ -47,7 +47,7 @@ def classify_k(subject_name: str, notes: str | None = None) -> tuple[dict[str, A
             msg = body.get("error") or body.get("detail") or r.text
         except ValueError:
             msg = r.text
-        return None, f"WhoIsWhat HTTP {r.status_code}: {msg}"
+        return None, f"Contact Advisor HTTP {r.status_code}: {msg}"
 
     return r.json(), None
 

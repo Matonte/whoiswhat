@@ -30,7 +30,7 @@ _HOME_HTML = """
 </head>
 <body>
   <h1>WhoIsHoss <span class="tag">microservice</span></h1>
-  <p class="muted">Sibling service to WhoIsWhat. Classifies fictional characters / invented personas along the HOSS F-scale archetype.</p>
+  <p class="muted">Sibling service to Contact Advisor. Classifies fictional characters / invented personas along the HOSS F-scale archetype.</p>
   <ul>
     <li><a href="/hoss"><strong>Classifier UI</strong></a> — name + optional notes → HOSS level + rationale</li>
     <li><a href="/api/v1/hoss/labels">GET /api/v1/hoss/labels</a> — thresholds, weights, item mapping</li>

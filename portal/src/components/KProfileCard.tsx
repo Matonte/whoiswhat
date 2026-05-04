@@ -13,14 +13,14 @@ export function KProfileCard({ profile, loading, error }: Props) {
   return (
     <Card>
       <CardHeader
-        accent="var(--color-whoiswhat)"
+        accent="var(--color-contact-advisor)"
         title={
           <span className="inline-flex items-center gap-2">
             <Tags className="h-3.5 w-3.5 text-indigo-300" />
             K Taxonomy
           </span>
         }
-        subtitle="WhoIsWhat · port 5000"
+        subtitle="Contact Advisor · port 5000"
       />
       <CardBody>
         {loading && (

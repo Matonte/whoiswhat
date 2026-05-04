@@ -82,6 +82,7 @@ def classify_subject(
 
     model = (
         model
+        or os.environ.get("CONTACT_ADVISOR_MODEL")
         or os.environ.get("WHOISWHAT_MODEL")
         or os.environ.get("OPENAI_MODEL")
         or "gpt-5.4-mini"

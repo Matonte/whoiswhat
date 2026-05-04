@@ -1,6 +1,6 @@
 """Separate SQLAlchemy instance for the whoishoss service.
 
-Kept distinct from `whoiswhat.extensions.db` so the services can run as
+Kept distinct from `contact_advisor.extensions.db` so the services can run as
 independent processes with independent databases.
 """
 

@@ -37,7 +37,7 @@ _HOME_HTML = """
 </head>
 <body>
   <h1>Meeting Advisor <span class="tag">aggregator</span></h1>
-  <p class="muted">Calls WhoIsWhat + WhoIsHoss over HTTP, merges both profiles with your meeting context, and returns tactical guidance.</p>
+  <p class="muted">Calls Contact Advisor + WhoIsHoss over HTTP, merges both profiles with your meeting context, and returns tactical guidance.</p>
   <ul>
     <li><a href="/advise"><strong>Advisor UI</strong></a> — subject name + notes + meeting context → guidance</li>
     <li><a href="/api/v1/advice">GET /api/v1/advice</a> — list past advice runs</li>
@@ -89,7 +89,7 @@ _ADVISE_HTML = """
 <body>
   <p><a href="/">← Home</a></p>
   <h1>Plan a meeting</h1>
-  <p class="muted">Enter the subject + your meeting context. The advisor calls WhoIsWhat and WhoIsHoss over HTTP, merges both profiles, and returns tactical guidance.</p>
+  <p class="muted">Enter the subject + your meeting context. The advisor calls Contact Advisor and WhoIsHoss over HTTP, merges both profiles, and returns tactical guidance.</p>
   <form id="f">
     <div class="grid2">
       <div>
@@ -128,7 +128,7 @@ _ADVISE_HTML = """
     <h2>Profiles</h2>
     <div class="outputs">
       <section>
-        <h2>K taxonomy (WhoIsWhat)</h2>
+        <h2>K taxonomy (Contact Advisor)</h2>
         <div id="out-k" class="out-panel profile">Submit to see the K classification.</div>
       </section>
       <section>
@@ -172,7 +172,7 @@ _ADVISE_HTML = """
     };
     if (!payload.subject_name) { showErr("Please enter a subject name."); return; }
     btn.disabled = true;
-    outK.innerHTML = "<span class='muted'>Calling WhoIsWhat…</span>";
+    outK.innerHTML = "<span class='muted'>Calling Contact Advisor…</span>";
     outH.innerHTML = "<span class='muted'>Calling WhoIsHoss…</span>";
     outA.innerHTML = "<span class='muted'>Generating meeting guidance…</span>";
     try {
@@ -258,7 +258,8 @@ def health():
     return jsonify(
         status="ok",
         service="meeting_advisor",
-        whoiswhat_url=current_app.config["WHOISWHAT_URL"],
+        contact_advisor_url=current_app.config["CONTACT_ADVISOR_URL"],
+        whoiswhat_url=current_app.config["CONTACT_ADVISOR_URL"],
         whoishoss_url=current_app.config["WHOISHOSS_URL"],
         database="connected",
     )

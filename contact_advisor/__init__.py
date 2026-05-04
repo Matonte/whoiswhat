@@ -7,6 +7,7 @@ from flask import Flask, current_app
 from flask_cors import CORS
 
 from .extensions import db
+from .people_intel import bp as people_intel_bp
 from .routes import bp as main_bp
 
 
@@ -27,6 +28,7 @@ def create_app():
     db.init_app(app)
     _configure_cors(app)
     app.register_blueprint(main_bp)
+    app.register_blueprint(people_intel_bp)
     _register_cli(app)
 
     return app

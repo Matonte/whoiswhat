@@ -4,7 +4,7 @@ import type { HealthStatus } from "@/types"
 import { cn } from "@/lib/utils"
 
 const services = [
-  { key: "whoiswhat", label: "WhoIsWhat", port: 5000, color: "var(--color-whoiswhat)" },
+  { key: "contact_advisor", label: "Contact Advisor", port: 5000, color: "var(--color-contact-advisor)" },
   { key: "whoishoss", label: "WhoIsHoss", port: 5002, color: "var(--color-whoishoss)" },
   { key: "advisor", label: "Advisor", port: 5003, color: "var(--color-advisor)" },
 ] as const

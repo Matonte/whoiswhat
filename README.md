@@ -1,4 +1,4 @@
-# WhoIsWhat — monorepo
+# Contact Advisor — monorepo
 
 Three Flask microservices + a React portal, designed as a work-sample project
 that classifies subjects along two independent taxonomies and generates
@@ -6,7 +6,7 @@ grounded meeting guidance:
 
 | Service | Role | Port | DB |
 |---|---|---|---|
-| [`whoiswhat/`](./whoiswhat) | K-taxonomy classifier (criteria + labeled examples) | **5001** (docker) / 5000 (local) | `whoiswhat.db` |
+| [`contact_advisor/`](./contact_advisor) | K-taxonomy classifier + people-intel (criteria + labeled examples) | **5001** (docker) / 5000 (local) | `contact_advisor.db` |
 | [`whoishoss/`](./whoishoss) | HOSS F-scale archetype classifier | **5002** | `whoishoss.db` |
 | [`meeting_advisor/`](./meeting_advisor) | Aggregator — calls both classifiers over HTTP + LLM meeting guidance | **5003** | `meeting_advisor.db` |
 | [`portal/`](./portal) | React + Vite + Tailwind SPA consuming all three APIs | **5173** | — |
@@ -31,14 +31,14 @@ copy .env.example .env
 
 Edit `.env`:
 
-- `DATABASE_URL` — whoiswhat DB (SQLite or PostgreSQL)
+- `DATABASE_URL` — Contact Advisor DB (SQLite or PostgreSQL)
 - `HOSS_DATABASE_URL` — whoishoss DB (separate SQLite file by default)
 - `OPENAI_API_KEY` — required for both classifier UIs
 
 Run **each service in its own terminal**:
 
 ```powershell
-# terminal 1 — whoiswhat (K taxonomy)
+# terminal 1 — contact_advisor (K taxonomy + people-intel)
 python run.py                       # http://127.0.0.1:5000
 
 # terminal 2 — whoishoss (HOSS)
@@ -49,7 +49,7 @@ python run_meeting_advisor.py       # http://127.0.0.1:5003
 ```
 
 On first startup each service creates its tables and, if empty, imports its
-data folder (`data/raw/` for whoiswhat, `data/hoss/` for whoishoss).
+data folder (`data/raw/` for contact_advisor, `data/hoss/` for whoishoss).
 
 ## Setup (Docker Compose — both services together)
 
@@ -58,11 +58,11 @@ docker compose up --build
 ```
 
 - portal → http://127.0.0.1:5173 (nginx-served SPA that proxies `/api/*` to each service)
-- whoiswhat → http://127.0.0.1:5001
+- contact_advisor → http://127.0.0.1:5001
 - whoishoss → http://127.0.0.1:5002
-- meeting_advisor → http://127.0.0.1:5003 (reaches its siblings via Docker DNS: `http://whoiswhat:5000`, `http://whoishoss:5002`)
+- meeting_advisor → http://127.0.0.1:5003 (reaches its siblings via Docker DNS: `http://contact_advisor:5000`, `http://whoishoss:5002`)
 
-Each service gets its own named volume (`whoiswhat_db`, `whoishoss_db`,
+Each service gets its own named volume (`contact_advisor_db`, `whoishoss_db`,
 `advisor_db`) so the databases are independent and persist across restarts.
 `OPENAI_API_KEY` is read from your host `.env`.
 
@@ -85,13 +85,12 @@ npm run dev               # http://127.0.0.1:5173
 
 The Vite dev server proxies:
 
-- `/api/whoiswhat/*` → `http://127.0.0.1:5000`
+- `/api/contact-advisor/*` → `http://127.0.0.1:5000`
 - `/api/whoishoss/*` → `http://127.0.0.1:5002`
 - `/api/advisor/*`   → `http://127.0.0.1:5003`
 
 so the three Flask services only need to be running locally. Override any of
-these via `portal/.env` (`VITE_WHOISWHAT_URL`, `VITE_WHOISHOSS_URL`,
-`VITE_ADVISOR_URL`).
+these via `portal/.env`: `VITE_CONTACT_ADVISOR_URL` (or deprecated `VITE_WHOISWHAT_URL`), `VITE_WHOISHOSS_URL`, `VITE_ADVISOR_URL`.
 
 Prod build:
 
@@ -107,7 +106,7 @@ network.
 Each Flask service enables `flask-cors` on `/api/*` and `/health`; set
 `CORS_ORIGINS` (comma-separated) to lock down the portal's public origin.
 
-## WhoIsWhat (K taxonomy service)
+## Contact Advisor (K taxonomy + people-intel service)
 
 Dataset files live in `data/raw/`:
 
@@ -127,6 +126,8 @@ Endpoints:
 | `GET /api/v1/evaluation-criteria` | Parsed `k_training_schema.json` |
 | `GET /api/v1/taxonomy/graph` / `/nodes` / `/edges` | Taxonomy |
 | `GET /api/v1/training-examples?limit=500` | Labeled examples |
+| `GET /api/v1/people-intel/schema` | People-intel request/response shape |
+| `POST /api/v1/people-intel` | Public professional-context synthesis |
 | `GET /health` | DB connectivity |
 
 Reimport the dataset at any time:
@@ -182,8 +183,8 @@ Output is a stylized archetypal label, not a diagnosis.
 
 ## Meeting Advisor (aggregator)
 
-`meeting_advisor/` is a true sibling microservice: it calls WhoIsWhat and
-WhoIsHoss **over HTTP**, caches the two profiles in its own SQLite DB with
+`meeting_advisor/` is a true sibling microservice: it calls Contact Advisor (K)
+and WhoIsHoss **over HTTP**, caches the two profiles in its own SQLite DB with
 a configurable TTL, opportunistically reuses already-persisted HOSS
 profiles (avoiding a re-classification), and asks the LLM for a
 tactical meeting brief.
@@ -210,7 +211,7 @@ Response (standard schema):
 ```json
 {
   "id": 7,
-  "k_profile":    { ... full WhoIsWhat /classify response ... },
+  "k_profile":    { ... full Contact Advisor /classify response ... },
   "hoss_profile": { ... full WhoIsHoss /hoss/classify response ... },
   "advice": {
     "risk_level": "low|medium|high",
@@ -247,21 +248,22 @@ the caller.
 ├── requirements.txt
 ├── Dockerfile
 ├── docker-compose.yml
-├── run.py                    # whoiswhat dev server
+├── run.py                    # contact_advisor dev server
 ├── run_whoishoss.py          # whoishoss dev server
 ├── run_meeting_advisor.py    # meeting_advisor dev server
-├── wsgi.py                   # whoiswhat WSGI
+├── wsgi.py                   # contact_advisor WSGI
 ├── wsgi_whoishoss.py         # whoishoss WSGI
 ├── wsgi_meeting_advisor.py   # meeting_advisor WSGI
 ├── data/
 │   ├── raw/                  # K taxonomy + training source files
 │   └── hoss/                 # HOSS config, questions, prompts, samples
-├── whoiswhat/                # K taxonomy classifier
+├── contact_advisor/          # K taxonomy + people-intel
 │   ├── __init__.py           # create_app(), CLI
-│   ├── extensions.py         # db (whoiswhat)
+│   ├── extensions.py         # db (contact_advisor)
 │   ├── models.py
 │   ├── importer.py
 │   ├── llm.py
+│   ├── people_intel.py       # people-intel blueprint
 │   └── routes.py
 ├── whoishoss/                # HOSS classifier
 │   ├── __init__.py           # create_app(), CLI
@@ -275,7 +277,7 @@ the caller.
 │   ├── __init__.py           # create_app()
 │   ├── extensions.py         # db (advisor — separate instance)
 │   ├── models.py             # subject_cache + advice_runs
-│   ├── clients.py            # HTTP clients for the two sibling services
+│   ├── clients.py            # HTTP clients for Contact Advisor + WhoIsHoss
 │   ├── llm.py                # merged-profile → meeting brief
 │   └── routes.py
 ├── portal/                   # React + Vite + Tailwind SPA
@@ -297,5 +299,5 @@ the caller.
 - Flask-Migrate (Alembic) for schema evolution
 - `pytest` suite and auth for non-public deployments
 - Promote SQLite → PostgreSQL by changing only the `*_DATABASE_URL`
-- Persist WhoIsWhat classifications so the advisor can reuse them too
+- Persist Contact Advisor (K) classifications so the advisor can reuse them too
 - Rate limiting and request IDs for cross-service tracing

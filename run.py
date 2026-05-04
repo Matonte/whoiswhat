@@ -7,9 +7,9 @@ entry point works locally and inside docker-compose.
 import os
 from pathlib import Path
 
-from whoiswhat import create_app
-from whoiswhat.extensions import db
-from whoiswhat.importer import ensure_k_dataset_loaded
+from contact_advisor import create_app
+from contact_advisor.extensions import db
+from contact_advisor.importer import ensure_k_dataset_loaded
 
 app = create_app()
 
