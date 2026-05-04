@@ -8,6 +8,7 @@ is unreachable or hit by an OpenAI rate limit.
 from __future__ import annotations
 
 import json
+import os
 from datetime import datetime, timedelta
 from typing import Any
 
@@ -18,7 +19,15 @@ from .extensions import db
 from .models import SubjectCache
 
 
-DEFAULT_TIMEOUT = 60
+def _classify_http_timeout() -> float:
+    """POST /classify hits OpenAI on siblings — allow longer than typical REST calls."""
+    raw = (os.environ.get("ADVISOR_SIBLING_HTTP_TIMEOUT") or "").strip()
+    if raw:
+        try:
+            return max(15.0, float(raw))
+        except ValueError:
+            pass
+    return 120.0
 
 
 def _url(service_config_key: str, path: str) -> str:
@@ -36,7 +45,7 @@ def classify_k(subject_name: str, notes: str | None = None) -> tuple[dict[str, A
         r = requests.post(
             _url("CONTACT_ADVISOR_URL", "/api/v1/classify"),
             json=payload,
-            timeout=DEFAULT_TIMEOUT,
+            timeout=_classify_http_timeout(),
         )
     except requests.RequestException as e:
         return None, f"Contact Advisor unreachable at {current_app.config['CONTACT_ADVISOR_URL']}: {e}"
@@ -119,7 +128,7 @@ def classify_hoss(
         r = requests.post(
             _url("WHOISHOSS_URL", "/api/v1/hoss/classify"),
             json=payload,
-            timeout=DEFAULT_TIMEOUT,
+            timeout=_classify_http_timeout(),
         )
     except requests.RequestException as e:
         return None, f"WhoIsHoss unreachable at {current_app.config['WHOISHOSS_URL']}: {e}"
