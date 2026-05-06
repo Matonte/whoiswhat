@@ -1,4 +1,5 @@
 import json
+import os
 
 from flask import Blueprint, jsonify, render_template_string, request
 from sqlalchemy import text
@@ -23,9 +24,22 @@ _HOME_HTML = """
     a { color: #2563eb; }
     ul { padding-left: 1.2rem; }
     .muted { color: #64748b; font-size: 0.9rem; }
+    .portal-banner {
+      border: 1px solid #145a4a; background: #061210; color: #a8ffd9;
+      padding: 1rem 1.1rem; margin: 0 0 1.25rem 0; border-radius: 4px;
+      font-size: 0.95rem; line-height: 1.45;
+    }
+    .portal-banner a.portal-link { color: #4fffc4; font-weight: 600; }
+    .portal-banner code { background: #0a1a16; color: #62c9a8; border: 1px solid #145a4a; }
   </style>
 </head>
 <body>
+  <aside class="portal-banner" role="note">
+    <strong>Full “Resume Agent–style” HUD is the React portal</strong> — not this page.
+    Open <a class="portal-link" href="{{ portal_url }}">{{ portal_url }}</a>
+    (run <code>npm run dev</code> in <code>portal/</code>, or Docker port <code>5173</code>).
+    This server is only the K / people-intel API on port 5000.
+  </aside>
   <h1>Contact Advisor</h1>
   <p class="muted">K taxonomy + training dataset (evaluation criteria and labeled examples).</p>
   <ul>
@@ -170,7 +184,11 @@ _CLASSIFY_HTML = """
 
 @bp.route("/")
 def home():
-    return render_template_string(_HOME_HTML)
+    portal_url = (
+        (os.environ.get("PORTAL_PUBLIC_URL") or "http://127.0.0.1:5173").strip()
+        or "http://127.0.0.1:5173"
+    )
+    return render_template_string(_HOME_HTML, portal_url=portal_url)
 
 
 @bp.route("/api/v1/evaluation-criteria")
